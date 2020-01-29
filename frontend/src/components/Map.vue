@@ -62,7 +62,6 @@ import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
 import { FactoryStatus, FactoryData, FactoryStatusText, FACTORY_TYPE } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
-import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
 
 export default createComponent({
@@ -101,13 +100,12 @@ export default createComponent({
     }
   },
   setup (props) {
-    const { event } = useGA()
     const root = ref<HTMLElement>(null)
     const popup = ref<HTMLDivElement>(null)
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
-    const [,modalActions] = useModalState()
+    const [modalActions] = useModalState()
 
     const popupData = ref({
       show: false,
@@ -169,7 +167,6 @@ export default createComponent({
         onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
           factoryValid.value = canPlaceFactory
           factoryLngLat.value = [longitude, latitude]
-          event('moveMap')
           try {
             const factories = await getFactories(range, longitude, latitude)
             if (Array.isArray(factories)) {
@@ -181,7 +178,6 @@ export default createComponent({
         }, // TODO: do on start move to lock selection
         onClicked: async function (_, feature) {
           if (feature) {
-            event('clickPopup')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             popupOverlay.setPosition((feature.getGeometry() as any).getCoordinates())
             setPopup(feature.getId() as string)
@@ -231,7 +227,6 @@ export default createComponent({
       factoryValid,
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
-          event('zoomToGeolocation')
           mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
       },

@@ -64,7 +64,6 @@ import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
 import { FactoryData } from './types'
 import { provideModalState, useModalState } from './lib/hooks'
-import { provideGA, useGA } from './lib/useGA'
 
 export default createComponent({
   name: 'App',
@@ -82,15 +81,11 @@ export default createComponent({
     UpdateFactorySuccessModal,
     FormPage
   },
-  setup (_, context) {
-    provideGA(context)
-
+  setup () {
     provideModalState()
     localStorage.setItem('use-app', 'true')
 
     const [modalState, modalActions] = useModalState()
-
-    const { pageview, event } = useGA()
 
     const appState = reactive({
       // Modal open states
@@ -109,12 +104,10 @@ export default createComponent({
 
     // Modal state utilities
     function closeFilterModal () {
-      event('closeFilterModal')
       appState.filterModalOpen = false
     }
 
     function openFilterModal () {
-      event('openFilterModal')
       appState.filterModalOpen = true
     }
 
@@ -123,33 +116,27 @@ export default createComponent({
       appState.factoryData = null
       appState.formMode = 'create'
       appState.factoryFormOpen = true
-      pageview('/create')
     }
 
     const openEditFactoryForm = (factory: FactoryData) => {
       appState.factoryData = factory
       appState.formMode = 'edit'
       appState.factoryFormOpen = true
-      pageview('/edit')
     }
 
     function closeFactoryPage () {
       appState.factoryFormOpen = false
-      event('closeFactoryPage')
     }
 
     const setFactoryLocation = (value: [number, number]) => {
       appState.factoryLocation = value
-      event('setFactoryLocation')
     }
 
     function enterSelectFactoryMode () {
       appState.selectFactoryMode = true
-      event('enterSelectFactoryMode')
     }
     function exitSelectFactoryMode () {
       appState.selectFactoryMode = false
-      event('exitSelectFactoryMode')
     }
 
     // register global accessible map instance
